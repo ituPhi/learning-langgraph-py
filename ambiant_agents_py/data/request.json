@@ -1,0 +1,35 @@
+{
+  "id": "req_001",
+  "user": "user@example.com",
+  "brandId": "brand_123",
+  "teamId": "team_abc",
+  "category": "design",
+  "type": "asset_upload",
+  "priority": "medium",
+  "status": "submitted",
+  "request": "These are the copy drafts for this month's campaign.",
+  "summary": "User uploaded campaign copy for April. Needs design and tone review.",
+  "llmDescription": "Text submission for April marketing campaign requiring visual alignment and brand compliance review.",
+  "relatedConcepts": ["campaign", "copywriting", "April_2023"],
+  "assignedTo": "designer@example.com",
+  "reviewers": ["brand_manager@example.com"],
+  "approvalSteps": [
+    { "role": "designer", "status": "pending" },
+    { "role": "brand_manager", "status": "pending" }
+  ],
+  "attachments": [
+    {
+      "name": "april_copy.docx",
+      "url": "https://cdn.brandcy.com/assets/april_copy.docx"
+    }
+  ],
+  "triggerAgent": true,
+  "agentType": "BrandGuardian",
+  "actions": [
+    "analyze_copy_tone",
+    "check_brand_compliance",
+    "suggest_visual_assets"
+  ],
+  "createdAt": "2023-04-01T10:32:00Z",
+  "updatedAt": "2023-04-01T10:32:00Z"
+}

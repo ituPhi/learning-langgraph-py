@@ -1,0 +1,15 @@
+[project]
+name = "introduction-review"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain>=1.2.0",
+    "langchain-core>=1.2.6",
+    "langchain-openai>=1.1.6",
+    "langgraph>=1.0.5",
+    "langgraph-cli[inmem]>=0.4.11",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+]
