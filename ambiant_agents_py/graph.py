@@ -6,8 +6,9 @@ from langchain.chat_models import init_chat_model
 from langchain.messages import SystemMessage
 from langchain.tools import tool
 from langchain_core.messages import AIMessage, AnyMessage, ToolMessage
+from langchain_core.messages.human import HumanMessage
 from langgraph.graph import END, START, StateGraph
-from langgraph.types import Command
+from langgraph.types import Command, interrupt
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated, TypedDict
 
@@ -79,15 +80,6 @@ def route_after_triage(state: MessagesState) -> str:
     return "__end__"
 
 
-# def write_request_node(state: MessagesState):
-#     request = state.get("request")
-#     response = llm_with_tools.invoke(request)
-#     args = response.tool_calls[0]["args"]
-#     tool_message = write_request_response.invoke(args)
-#     request_response = llm_with_tools.invoke(tool_message)
-#     return {"request_response": request_response}
-
-
 def call_model(state: MessagesState) -> dict[str, list[AnyMessage]]:
     # Get the classification to understand what kind of response to provide
     classification_decision = state.get("classification_decision")
@@ -143,7 +135,28 @@ def should_continue(state: MessagesState):
 
 
 def human_verify(state: MessagesState):
-    pass
+    classification = state["classification_decision"].classification
+    if classification == "bug":
+        human_decision = interrupt(
+            {
+                "classification": state["classification_decision"].classification,
+                "reason": state["classification_decision"].reasoning,
+            }
+        )
+        if human_decision["feedback"]:
+            feedback = human_decision["feedback"]
+            feedback_message = f"Feedback: {feedback}"
+            messages = state["messages"] + [HumanMessage(content=feedback_message)]
+            return Command(update={"messages": messages}, goto="call_model")
+        if human_decision["approved"]:
+            return Command(update={}, goto="call_model")
+        else:
+            return Command(
+                update={"messages": [AIMessage(content="verification denied")]},
+                goto=END,
+            )
+    else:
+        return Command(update={}, goto="call_model")
 
 
 graph = StateGraph(MessagesState)
@@ -162,9 +175,11 @@ agent_workflow = (
     StateGraph(MessagesState)
     .add_node("triage_router", triage_router)
     .add_node("response_agent", agent)
+    .add_node("human_decision", human_verify)
     .add_edge(START, "triage_router")
+    .add_edge("triage_router", "human_decision")
     .add_conditional_edges(
-        "triage_router",
+        "human_decision",
         route_after_triage,
         {"response_agent": "response_agent", "__end__": "__end__"},
     )
