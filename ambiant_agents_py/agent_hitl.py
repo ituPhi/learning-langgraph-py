@@ -170,7 +170,7 @@ graph.add_edge("call_model", END)
 
 agent = graph.compile()
 
-agent_workflow = (
+agent_hitl = (
     StateGraph(MessagesState)
     .add_node("triage_router", triage_router)
     .add_node("response_agent", agent)

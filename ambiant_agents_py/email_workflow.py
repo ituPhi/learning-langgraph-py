@@ -158,7 +158,7 @@ builder.add_edge("classify_request", "search_documentation")
 builder.add_edge("bug_tracking", "write_response")
 builder.add_edge("search_documentation", "write_response")
 builder.add_edge("send_response", END)
-agent = builder.compile()
+email_workflow = builder.compile()
 
 # initial_state = {
 #     "request_id": "12345",
